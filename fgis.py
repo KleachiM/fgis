@@ -34,6 +34,8 @@ end_row = sh1.range('A1').current_region.last_cell.row  # столбец для 
 for excel_line in range(start_row, end_row):
     mitnumber = sh1.range(f'B{excel_line}').value  # столбец для номера в госреестре
     number = sh1.range(f'F{excel_line}').value  # столбец для заводского номера
+    if mitnumber == '49310-12':
+        print('ok')
     dates = get_date(DAYS_DIFF)
     if dates == 3:
         URL = make_url(mitnumber, number, dates['date_from'], dates['date_to'], dates['verification_year'])
@@ -46,8 +48,11 @@ for excel_line in range(start_row, end_row):
     for URL in URLS:
         resp = requests.get(URL, proxies=proxies)
         resp_json = resp.json()
-        works_count = resp_json['response']['numFound']
-        works = resp_json['response']['docs']
+        # works_count = resp_json['response']['numFound']
+        is_response = resp_json.get('response')
+        works_count = is_response.get('numFound')
+        # works = resp_json['response']['docs']
+        works = is_response.get('docs')
         if works_count:
             for work in works:
                 NEW_URL = 'https://fgis.gost.ru/fundmetrology/cm/iaux/vri/' + work['vri_id']
