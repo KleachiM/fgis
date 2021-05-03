@@ -1,30 +1,30 @@
 shop: М-Видео
 categories:
   - id: 22
-  name: Ноутбуки
+name: Ноутбуки
 
 goods:
   - id: 421629
-  category: 22
-  model: MacBook
-  name: Ноутбук Apple MacBook
-  price: 110000
-  price_rrc: 116990
-  quantity: 14
-  parameters:
-    "Диагональ (дюйм)": 13
-    "Разрешение (пикс)": 2688x1242
-    "Встроенная память (Гб)": 512
-    "Цвет": золотистый
+category: 22
+model: MacBook
+name: Ноутбук Apple MacBook
+price: 110000
+price_rrc: 116990
+quantity: 14
+parameters:
+  "Диагональ (дюйм)": 13
+  "Разрешение (пикс)": 2688x1242
+  "Встроенная память (Гб)": 512
+  "Цвет": золотистый
   - id: 421631
-  category: 22
-  model: Lenovo
-  name: Ноутбук Lenovo
-  price: 65000
-  price_rrc: 69990
-  quantity: 9
-  parameters:
-    "Диагональ (дюйм)": 15
-    "Разрешение (пикс)": 1792x828
-    "Встроенная память (Гб)": 256
-    "Цвет": красный
+category: 22
+model: Lenovo
+name: Ноутбук Lenovo
+price: 65000
+price_rrc: 69990
+quantity: 9
+parameters:
+  "Диагональ (дюйм)": 15
+  "Разрешение (пикс)": 1792x828
+  "Встроенная память (Гб)": 256
+  "Цвет": красный
