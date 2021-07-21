@@ -9,7 +9,7 @@ import tqdm
 from date_trans import get_date
 from url_trans import make_url
 
-DAYS_DIFF = 62
+DAYS_DIFF = 60  # количество дней
 
 proxies = {
   'http': 'http://gate.inet:3128',
@@ -31,17 +31,20 @@ dir = r'C:\Users\PycharmProjects\FGIS'  # hardcode для корректного
 full_path = dir + '\\' + file_name
 
 wb = xw.Book(full_path)
-sh1 = wb.sheets[0]
-sh2 = wb.sheets[1]
+sh1 = wb.sheets['Для_поиска']
+sh2 = wb.sheets['Найденное']
 
 start_row = 2
 end_row = sh1.range('A1').current_region.last_cell.row  # столбец для анализа количества строк
+row = 0
 
 for excel_line in tqdm.tqdm(range(start_row, end_row), desc='Выполнение'):  # tqdm для отображения прогрессбара
     mitnumber = sh1.range(f'B{excel_line}').value  # столбец для номера в госреестреq
-    number = sh1.range(f'E{excel_line}').value  # столбец для заводского номера
+    number = str(sh1.range(f'E{excel_line}').value)  # столбец для заводского номера
+
     dates = get_date(DAYS_DIFF)
-    if dates == 3:  # если 62 дня назад был этот год
+
+    if len(dates) == 3:  # если 62 дня назад был этот год
         URL = make_url(mitnumber, number, dates['date_from'], dates['date_to'], dates['verification_year'])
         URLS = [URL]
     else:  # если 62 дня назад был прошлый год
@@ -57,16 +60,20 @@ for excel_line in tqdm.tqdm(range(start_row, end_row), desc='Выполнени�
         works = is_response.get('docs')
         if works_count:
             for work in works:
-                NEW_URL = 'https://fgis.gost.ru/fundmetrology/cm/iaux/vri/' + work['vri_id']
+                NEW_URL = 'https://fgis.gost.ru/fundmetrology/cm/iaux/vri/' + work['vri_id'] + '?nonpub=1'
                 work_res = requests.get(NEW_URL, proxies=proxies)
                 work_res_json = work_res.json()
-                blank_line = sh2.range('G1').current_region.last_cell.row + 1
+                # blank_line = sh2.range('G1').current_region.last_cell.row + 1
                 owner = work_res_json['result']['vriInfo'].get('miOwner')  # получить владельца если есть
                 doc_num = work['result_docnum']  # получить номер документа
                 type_si = work['mi.modification']  # получить тип СИ
                 name_si = work['mi.mititle']  # получить наименование СИ
                 reg_num = work['mi.mitnumber']  # получить номер в госреестре
-                si_num = work['mi.number']  # получить заводской номер СИ
+                si_num = str(work['mi.number'])  # получить заводской номер СИ
+                try:
+                    worker = work_res_json['result']['nonpub'].get('verifiername')
+                except KeyError:
+                    worker = ''
                 manufact_year = work_res_json['result']['miInfo']
                 verif_date = work['verification_date'].split('T')[0]  # получить дату поверки
                 valid_date = work.get('valid_date')  # получить дату следующей поверки, если она есть
@@ -77,6 +84,13 @@ for excel_line in tqdm.tqdm(range(start_row, end_row), desc='Выполнени�
 
                 if number == si_num:  # если полученный заводской номер совпадает с номером из экселя
                     # запись данных в эксель
+                    if not row:
+                        blank_line = sh2.range('G1').current_region.last_cell.row + 1
+                        row = blank_line
+                        blank_line = row
+                    else:
+                        row += 1
+                        blank_line = row
                     sh2.range(f'B{blank_line}').value = owner
                     sh2.range(f'C{blank_line}').value = reg_num
                     sh2.range(f'D{blank_line}').value = name_si
@@ -86,6 +100,7 @@ for excel_line in tqdm.tqdm(range(start_row, end_row), desc='Выполнени�
                     sh2.range(f'K{blank_line}').value = verif_date
                     sh2.range(f'L{blank_line}').value = valid_date
                     sh2.range(f'M{blank_line}').value = datetime.date.today()
+                    sh2.range(f'N{blank_line}').value = worker if worker else ''
 
                     if is_etalon:
                         # запись данных относящихся только к эталонам
@@ -98,4 +113,3 @@ for excel_line in tqdm.tqdm(range(start_row, end_row), desc='Выполнени�
                         sh2.range(f'H{blank_line}').value = etalon_reg_num
                         sh2.range(f'I{blank_line}').value = etalon_schema
                         sh2.range(f'J{blank_line}').value = etalon_rank
-
