@@ -1,7 +1,6 @@
 import datetime, sys
 
 DAYS_DIFF = 1  # если 1 то сортировка за все даты до вчерашнего дня, если 0 то до сегодня
-DAYS_COUNT = 26
 
 
 def get_date(days):
@@ -35,4 +34,3 @@ def get_date(days):
     else:
         print('Необходима проверка дат')
         sys.exit(0)
-
